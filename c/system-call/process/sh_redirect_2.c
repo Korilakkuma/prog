@@ -6,13 +6,12 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include "../utils/getcmd.h"
 #include "../utils/vec.h"
 
 enum {
     MAX_ARGV = 100
 };
-
-void getcmd(char *cmd, size_t size);
 
 int main(void) {
     char cmd[1024];
@@ -102,19 +101,4 @@ int main(void) {
     }
 
     exit(EXIT_SUCCESS);
-}
-
-void getcmd(char *cmd, size_t size) {
-    int len;
-    char *p;
-
-    fgets(cmd, size, stdin);
-
-    len = strlen(cmd) + 1;
-
-    if ((p = strchr(cmd, '\n')) == NULL) {
-        cmd[len - 1] = '\0';
-    } else {
-        *p = '\0';
-    }
 }
