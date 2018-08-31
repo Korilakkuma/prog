@@ -10,4 +10,6 @@
 
 extern int setup_server(in_port_t port);
 extern int setup_client(char *hostname, in_port_t port);
+extern int mserver_socket(in_port_t port, int backlog);
+extern int mserver_maccept(int ws, int limit, void (*callback)());
 extern char *chop_newline(char *str, size_t len);
