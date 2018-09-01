@@ -23,6 +23,7 @@ int setup_client(char *hostname, in_port_t port) {
     server.sin_port = htons(port);
 
     memcpy((char *)&server.sin_addr, server_ent->h_addr, server_ent->h_length);
+    // memmove(&server.sin_addr, server_ent->h_addr_list[0], sizeof(server.sin_addr));
 
     if (connect(s, (struct sockaddr *)&server, sizeof(server)) == -1) {
         perror("connect");
