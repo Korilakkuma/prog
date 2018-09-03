@@ -42,7 +42,7 @@ void session_init(int soc) {
     fgets(buf, BUF_LEN, stdin);
     chop_newline(buf, BUF_LEN);
 
-    if (write(soc, buf, sizeof(buf)) == -1) {
+    if (write(soc, buf, strlen(buf)) == -1) {
         perror("write");
         exit(EXIT_FAILURE);
     }
