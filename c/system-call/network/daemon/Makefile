@@ -2,9 +2,9 @@ LIBDIR  = ../lib
 LIB     = $(LIBDIR)/lib.a
 CC      = gcc -Wall
 CFLAGS  = -I$(LIBDIR)
-OBJS    = bb0d.o bb1d.o bbreader.o service.o session.o # bb9d.o bb9reader.o
-DAEMONS = bb0d bb1d # bb9d
-CLIENTS = bbreader # bb9reader
+OBJS    = bb0d.o bb1d.o bb9d.o bbreader.ob bb9reader.o service.o session.o
+DAEMONS = bb0d bb1d bb9d
+CLIENTS = bbreader bb9reader
 
 all:	$(DAEMONS) $(CLIENTS)
 
