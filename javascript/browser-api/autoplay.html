@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta cahrset="UTF-8" />
+    <title>Audio Streaming</title>
+  </head>
+  <body>
+    <b>Click ! (Release autoplay policy)</b>
+    <audio src="art-of-life.mp3"></audio>
+    <script src="build/xsound.js"></script>
+    <script>
+      X('media').setup({
+        autoplay : true,
+        media    : document.querySelector('audio')
+      });
+    </script>
+  </body>
+</html>
