@@ -2,16 +2,18 @@
 #include <vector>
 #include <cmath>
 #include "../wave/wave.h"
+#include "../window/window_functions.h"
 
 enum {
   N = 64
 };
 
-int main(void) {
+int main(int argc, char **argv) {
   MONO_PCM pcm;
 
   std::vector<double> x_real, x_imag;
   std::vector<double> X_real, X_imag;
+  std::vector<double> w;
 
   double W_real, W_imag;
 
@@ -24,8 +26,15 @@ int main(void) {
   X_real.reserve(N);
   X_imag.reserve(N);
 
+  w = Hanning_window(N);
+
   for (int n = 0; n < length; n++) {
-    x_real[n] = pcm.s[n];
+    if (argc > 1) {
+      x_real[n] = w[n] * pcm.s[n];
+    } else {
+      x_real[n] = pcm.s[n];
+    }
+
     x_imag[n] = 0.0;
   }
 
