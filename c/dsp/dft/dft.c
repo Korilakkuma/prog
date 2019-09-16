@@ -2,16 +2,18 @@
 #include <stdlib.h>
 #include <math.h>
 #include "../wave/wave.h"
+#include "../window/window_functions.h"
 
 enum {
   N = 64
 };
 
-int main(void) {
+int main(int argc, char **argv) {
   MONO_PCM pcm;
 
   double *x_real, *x_imag;
   double *X_real, *X_imag;
+  double *w;
   double W_real, W_imag;
 
   mono_wave_read(&pcm, "sample.wav");
@@ -22,9 +24,17 @@ int main(void) {
   x_imag = (double *)calloc(length, sizeof(double));
   X_real = (double *)calloc(N, sizeof(double));
   X_imag = (double *)calloc(N, sizeof(double));
+  w      = (double *)calloc(N, sizeof(double));
+
+  Hanning_window(w, N);
 
   for (int n = 0; n < length; n++) {
-    x_real[n] = pcm.s[n];
+    if (argc > 1) {
+      x_real[n] = w[n] * pcm.s[n];
+    } else {
+      x_real[n] = pcm.s[n];
+    }
+
     x_imag[n] = 0.0;
   }
 
@@ -51,6 +61,7 @@ int main(void) {
   free(x_imag);
   free(X_real);
   free(X_imag);
+  free(w);
 
   return 0;
 }
