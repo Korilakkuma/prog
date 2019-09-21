@@ -1,7 +1,7 @@
 #include <vector>
 #include <cmath>
 
-std::vector<double> Hanning_window(int N) {
+std::vector<double> hanning_window(int N) {
   std::vector<double> w(N);
 
   if ((N % 2) == 0) {
