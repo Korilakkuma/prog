@@ -7,19 +7,19 @@
 #include "dft.h"
 
 enum {
-  N = 64
+  N = 8
 };
 
 int main(int argc, char **argv) {
   MONO_PCM pcm;
 
   std::vector<std::complex<double>> x(N);
-  std::vector<std::complex<double>> X(N);
-  std::vector<double> w;
+  std::vector<std::complex<double>> X(N, 0.0);
+  std::vector<double> w(N);
 
   WAVE::wave_read(&pcm, "sample.wav");
 
-  w = hanning_window(N);
+  hanning_window(w, N);
 
   for (int n = 0; n < N; n++) {
     double real;
@@ -33,9 +33,29 @@ int main(int argc, char **argv) {
     x[n] = std::complex<double>(real, 0.0);
   }
 
-  X = DFT(x, N);
+  std::cout << std::fixed;
+
+  std::cout << "x(n)" << std::endl;
+
+  for (int n = 0; n < N; n++) {
+    std::cout << "[" << n << "]" << " " << x[n].real() << std::endl;
+  }
+
+  DFT(x, X, N);
+
+  std::cout << "X(k)" << std::endl;
 
   for (int k = 0; k < N; k++) {
-    std::cout << "[" << k << "]" << " " <<  X[k].real() << " + j" << std::fixed << X[k].imag() << std::endl;
+    std::cout << "[" << k << "]" << " " <<  X[k].real() << " + j" << X[k].imag() << std::endl;
+  }
+
+  x.assign(N, 0.0);
+
+  IDFT(x, X, N);
+
+  std::cout << "x(n)" << std::endl;
+
+  for (int n = 0; n < N; n++) {
+    std::cout << "[" << n << "]" << " " << x[n].real() << std::endl;
   }
 }
