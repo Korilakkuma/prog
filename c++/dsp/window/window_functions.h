@@ -12,3 +12,9 @@ void hanning_window(std::vector<double> &w, int N) {
     }
   }
 }
+
+void sine_window(std::vector<double> &w, int N) {
+  for (int n = 0; n < N; n++) {
+    w[n] = std::sin(M_PI * (static_cast<double>(n) / N));
+  }
+}
