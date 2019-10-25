@@ -3,9 +3,10 @@
 #include <math.h>
 #include "../wave/wave.h"
 #include "../window/window_functions.h"
+#include "dft.h"
 
 enum {
-  N = 64
+  N = 8
 };
 
 int main(int argc, char **argv) {
@@ -14,21 +15,18 @@ int main(int argc, char **argv) {
   double *x_real, *x_imag;
   double *X_real, *X_imag;
   double *w;
-  double W_real, W_imag;
 
   mono_wave_read(&pcm, "sample.wav");
 
-  long length = N;
-
-  x_real = (double *)calloc(length, sizeof(double));
-  x_imag = (double *)calloc(length, sizeof(double));
+  x_real = (double *)calloc(N, sizeof(double));
+  x_imag = (double *)calloc(N, sizeof(double));
   X_real = (double *)calloc(N, sizeof(double));
   X_imag = (double *)calloc(N, sizeof(double));
   w      = (double *)calloc(N, sizeof(double));
 
-  Hanning_window(w, N);
+  hanning_window(w, N);
 
-  for (int n = 0; n < length; n++) {
+  for (int n = 0; n < N; n++) {
     if (argc > 1) {
       x_real[n] = w[n] * pcm.s[n];
     } else {
@@ -38,15 +36,15 @@ int main(int argc, char **argv) {
     x_imag[n] = 0.0;
   }
 
-  for (int n = 0; n < length; n++) {
-    for (int k = 0; k < N; k++) {
-      W_real = cos(2 * M_PI * k * n / N);
-      W_imag = -sin(2 * M_PI * k * n / N);
+  fputs("x(n)\n", stdout);
 
-      X_real[k] += (W_real * x_real[n]) + (W_imag * x_imag[n]);
-      X_imag[k] += (W_real * x_imag[n]) + (W_imag * x_real[n]);
-    }
+  for (int n = 0; n < N; n++) {
+    printf("[%d] %f\n", n, x_real[n]);
   }
+
+  DFT(x_real, x_imag, X_real, X_imag, N);
+
+  fputs("X(k)\n", stdout);
 
   for (int k = 0; k < N; k++) {
     if (X_imag[k] >= 0) {
@@ -54,6 +52,19 @@ int main(int argc, char **argv) {
     } else {
       printf("[%d] %f - j%f\n", k, X_real[k], fabs(X_imag[k]));
     }
+  }
+
+  for (int n = 0; n < N; n++) {
+    x_real[n] = 0.0;
+    x_imag[n] = 0.0;
+  }
+
+  IDFT(x_real, x_imag, X_real, X_imag, N);
+
+  fputs("x(n)\n", stdout);
+
+  for (int n = 0; n < N; n++) {
+    printf("[%d] %f\n", n, x_real[n]);
   }
 
   free(pcm.s);
