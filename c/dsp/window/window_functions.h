@@ -11,3 +11,9 @@ void hanning_window(double *w, int N) {
     }
   }
 }
+
+void sine_window(double *w, int N) {
+  for (int n = 0; n < N; n++) {
+    w[n] = sin(M_PI * ((double)n / N));
+  }
+}
