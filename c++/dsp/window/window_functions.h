@@ -18,3 +18,9 @@ void sine_window(std::vector<double> &w, int N) {
     w[n] = std::sin(M_PI * (static_cast<double>(n) / N));
   }
 }
+
+void vorbis_window(std::vector<double> &w, int N) {
+  for (int n = 0; n < N; n++) {
+    w[n] = std::sin((M_PI / 2.0) * std::pow(std::sin(M_PI * (static_cast<double>(n) / N)), 2.0));
+  }
+}
