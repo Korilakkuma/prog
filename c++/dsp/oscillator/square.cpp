@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
   for (int n = 0; n < pcm.length; n++) {
     for (int i = 0; i < N; i++) {
       if ((i % 2) != 0) {
-        pcm.s[n] += a * sin(2.0 * M_PI * (i * f0) * n / pcm.fs);
+        pcm.s[n] += a * std::sin(2.0 * M_PI * (i * f0) * n / pcm.fs);
       }
     }
   }
