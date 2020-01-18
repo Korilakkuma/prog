@@ -7,6 +7,14 @@ void TimeStretch(
   int fs,
   int length
 ) {
+  if ((rate == 1.0) || (rate <= 0.0)) {
+    for (int n = 0; n < length; n++) {
+      out[n] = in[n];
+    }
+
+    return;
+  }
+
   int template_size = static_cast<int>(fs * 0.01);
   int p_min = static_cast<int>(fs * 0.005);
   int p_max = static_cast<int>(fs * 0.02);
@@ -18,7 +26,7 @@ void TimeStretch(
   int offset0 = 0;
   int offset1 = 0;
 
-  while ((offset0 + (2 + p_max)) < length) {
+  while ((offset0 + (2 * p_max)) < length) {
     for (int n = 0; n < template_size; n++) {
       x[n] = in[offset0 + n];
     }
@@ -34,7 +42,7 @@ void TimeStretch(
       r[m] = 0.0;
 
       for (int n = 0; n < template_size; n++) {
-        r[m] += y[n] * x[n];
+        r[m] += x[n] * y[n];
       }
 
       if (r[m] > max_of_r) {
@@ -43,22 +51,52 @@ void TimeStretch(
       }
     }
 
-    for (int n = 0; n < p; n++) {
-      out[offset1 + n] = (in[offset0 + n] * (p - n)) / p;
-      out[offset1 + n] += (in[offset0 + p + n] * n) / p;
+    if (rate < 1.0) {
+      for (int n = 0; n < p; n++) {
+        out[offset1 + n] = in[offset0 + n];
+      }
     }
 
-    int q = static_cast<int>((p / (rate - 1.0)) + 0.5);
+    for (int n = 0; n < p; n++) {
+      if (rate > 1.0) {
+        out[offset1 + n] = (in[offset0 + n] * (p - n)) / p;
+        out[offset1 + n] += (in[offset0 + p + n] * n) / p;
+      } else if (rate < 1.0) {
+        out[offset1 + p + n] = (in[offset0 + p + n] * (p - n)) / p;
+        out[offset1 + p + n] += (in[offset0 + n] * n) / p;
+      }
+    }
 
-    for (int n = p; n < q; n++) {
-      if ((offset0 + p + n) >= length) {
-        break;
+    int q = 0;
+
+    if (rate > 1.0) {
+      q = static_cast<int>((p / (rate - 1.0)) + 0.5);
+    } else if (rate < 1.0) {
+      q = static_cast<int>(((p * rate) / (1.0 - rate)) + 0.5);
+    }
+
+    if (rate > 1.0) {
+      for (int n = p; n < q; n++) {
+        if ((offset0 + p + n) >= length) {
+          break;
+        }
+
+        out[offset1 + n] = in[offset0 + p + n];
       }
 
-      out[offset1 + n] = in[offset0 + p + n];
-    }
+      offset0 += p + q;
+      offset1 += q;
+    } else if (rate < 1.0) {
+      for (int n = p; n < q; n++) {
+        if ((offset0 + n) >= length) {
+          break;
+        }
 
-    offset0 += p + q;
-    offset1 += q;
+        out[offset1 + p + n] = in[offset0 + n];
+      }
+
+      offset0 += q;
+      offset1 += p + q;
+    }
   }
 }

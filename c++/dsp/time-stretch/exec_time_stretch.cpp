@@ -17,13 +17,13 @@ int main(int argc, char **argv) {
 
   pcm1.fs     = pcm0.fs;
   pcm1.bits   = pcm0.bits;
-  pcm1.length = pcm0.length;
+  pcm1.length = static_cast<int>(pcm0.length / rate) + 1;
 
   pcm1.sL.resize(pcm1.length);
   pcm1.sR.resize(pcm1.length);
 
-  TimeStretch(rate, pcm0.sL, pcm1.sL, pcm1.fs, pcm1.length);
-  TimeStretch(rate, pcm0.sR, pcm1.sR, pcm1.fs, pcm1.length);
+  TimeStretch(rate, pcm0.sL, pcm1.sL, pcm1.fs, pcm0.length);
+  TimeStretch(rate, pcm0.sR, pcm1.sR, pcm1.fs, pcm0.length);
 
   WAVE::wave_write(&pcm1, "time-stretch.wav");
 }
