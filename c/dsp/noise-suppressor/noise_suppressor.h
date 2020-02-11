@@ -6,7 +6,7 @@ enum {
   N = 1024
 };
 
-void NoiseSupressor(double threshold, double *in, double *out, int fs, int length) {
+void NoiseSuppressor(double threshold, double *in, double *out, int fs, int length) {
   int number_of_frame = (length - (N / 2)) / (N / 2);
 
   double *w      = (double *)calloc(N, sizeof(double));
