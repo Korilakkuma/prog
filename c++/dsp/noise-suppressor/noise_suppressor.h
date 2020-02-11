@@ -7,7 +7,7 @@ enum {
   N = 1024
 };
 
-void NoiseSupressor(
+void NoiseSuppressor(
   double threshold,
   std::vector<double> &in,
   std::vector<double> &out,

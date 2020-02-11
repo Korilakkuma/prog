@@ -22,8 +22,8 @@ int main(int argc, char **argv) {
   pcm1.sL.resize(pcm1.length);
   pcm1.sR.resize(pcm1.length);
 
-  NoiseSupressor(threshold, pcm0.sL, pcm1.sL, pcm1.fs, pcm1.length);
-  NoiseSupressor(threshold, pcm0.sR, pcm1.sR, pcm1.fs, pcm1.length);
+  NoiseSuppressor(threshold, pcm0.sL, pcm1.sL, pcm1.fs, pcm1.length);
+  NoiseSuppressor(threshold, pcm0.sR, pcm1.sR, pcm1.fs, pcm1.length);
 
   WAVE::wave_write(&pcm1, "noise-suppressor.wav");
 }
