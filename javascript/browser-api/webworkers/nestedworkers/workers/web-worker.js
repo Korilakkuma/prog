@@ -9,7 +9,7 @@ self.onmessage = (event) => {
   let indexs = new Array(NUMBER_OF_ELEMENTS);
   let sum    = 0;
   let num    = 0;
-  let width  = 512;  // Hard coding ...
+  let width  = 256;  // Hard coding ...
   let blur   = 8;
 
   while (blur-- > 0) {

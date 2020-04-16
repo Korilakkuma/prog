@@ -23,19 +23,9 @@
     <main>
       <section>
         <video src="https://weblike-curtaincall.ssl-lolipop.jp/portfolio-music-v/video/silentjealousy_mix.mp4" hidden></video>
-        <canvas id="canvas-src" width="512" height="384"></canvas>
-        <canvas id="canvas-dest" width="512" height="384"></canvas>
-        <div id="use-worker">Only Main thread</div>
-      </section>
-      <section>
-        <h1>Web Workers</h1>
-        <button type="button" id="button-web-workers-start">START</button>
-        <button type="button" id="button-web-workers-stop">STOP</button>
-      </section>
-      <section>
-        <h1>Nested Workers</h1>
-        <button type="button" id="button-nested-workers-start">START</button>
-        <button type="button" id="button-nested-workers-stop">STOP</button>
+        <canvas id="canvas-src" width="256" height="192"></canvas>
+        <canvas id="canvas-web-workers" width="256" height="192"></canvas>
+        <canvas id="canvas-nested-workers" width="256" height="192"></canvas>
       </section>
     </main>
     <script>
@@ -44,8 +34,8 @@
       // for Nested Worker
       let worker = null;
 
-      let runWebWorkers    = false;
-      let runNestedWorkers = false;
+      let runWebWorkers    = true;
+      let runNestedWorkers = true;
 
       function drawVideoOnCanvasByWebWorkers(video, canvas, src, dest) {
         const { width, height } = canvas;
@@ -68,6 +58,10 @@
 
             worker.onmessage = (event) => {
               dest.putImageData(event.data, 0, 0);
+
+              dest.font = '16px Arial';
+              dest.fillStyle = '#fff';
+              dest.fillText('Web Workers', 12, 24);
             }
           });
         } else {
@@ -99,6 +93,10 @@
 
           worker.onmessage = (event) => {
             dest.putImageData(event.data, 0, 0);
+
+            dest.font = '16px Arial';
+            dest.fillStyle = '#fff';
+            dest.fillText('Nested Workers', 12, 24);
           }
         } else {
           if (worker) {
@@ -119,55 +117,23 @@
 
           video.src = window.URL.createObjectURL(blob);
 
-          const canvasSrc  = document.getElementById('canvas-src');
-          const canvasDest = document.getElementById('canvas-dest');
+          const canvas              = document.getElementById('canvas-src');
+          const canvasWebWorkers    = document.getElementById('canvas-web-workers');
+          const canvasNestedWorkers = document.getElementById('canvas-nested-workers');
 
-          const contextSrc  = canvasSrc.getContext('2d');
-          const contextDest = canvasDest.getContext('2d');
+          const context              = canvas.getContext('2d');
+          const contextWebWorkers    = canvasWebWorkers.getContext('2d');
+          const contextNestedWorkers = canvasNestedWorkers.getContext('2d');
 
-          canvasSrc.classList.add('-loaded');
+          canvas.classList.add('-loaded');
 
-          canvasSrc.addEventListener('click', () => {
+          canvas.addEventListener('click', () => {
             if (video.paused) {
               video.play();
-              drawVideoOnCanvasByWebWorkers(video, canvasSrc, contextSrc, contextDest);
-              drawVideoOnCanvasByNestedWorker(video, canvasSrc, contextSrc, contextDest);
+              drawVideoOnCanvasByWebWorkers(video, canvas, context, contextWebWorkers);
+              drawVideoOnCanvasByNestedWorker(video, canvas, context, contextNestedWorkers);
             }
           });
-
-          const buttonWebWorkersStart = document.getElementById('button-web-workers-start');
-          const buttonWebWorkersStop  = document.getElementById('button-web-workers-stop');
-
-          const buttonNestedWorkersStart = document.getElementById('button-nested-workers-start');
-          const buttonNestedWorkersStop  = document.getElementById('button-nested-workers-stop');
-
-          const useWorkerText = document.getElementById('use-worker');
-
-          buttonWebWorkersStart.addEventListener('click', () => {
-            runNestedWorkers = false;
-            runWebWorkers    = true;
-
-            useWorkerText.textContent = 'Web Workers';
-          }, false);
-
-          buttonWebWorkersStop.addEventListener('click', () => {
-            runWebWorkers = false;
-
-            useWorkerText.textContent = 'Only Main thread';
-          }, false);
-
-          buttonNestedWorkersStart.addEventListener('click', () => {
-            runWebWorkers    = false;
-            runNestedWorkers = true;
-
-            useWorkerText.textContent = 'Nested Workers';
-          }, false);
-
-          buttonNestedWorkersStop.addEventListener('click', () => {
-            runNestedWorkers = false;
-
-            useWorkerText.textContent = 'Only Main thread';
-          }, false);
         });
     </script>
   </bodY>
