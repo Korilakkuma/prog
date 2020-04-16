@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Web Workers VS Nested Workers</title>
+    <style>
+      #canvas-src {
+        background-color: rgba(0, 0, 0, 0.5);
+        transition: background-color 0.6s ease;
+      }
+
+      #canvas-src.-loaded {
+        cursor: pointer;
+        background-color: rgba(0, 0, 0, 1);
+      }
+
+      button {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <bodY>
+    <main>
+      <section>
+        <video src="https://weblike-curtaincall.ssl-lolipop.jp/portfolio-music-v/video/silentjealousy_mix.mp4" hidden></video>
+        <canvas id="canvas-src" width="512" height="384"></canvas>
+        <canvas id="canvas-dest" width="512" height="384"></canvas>
+        <div id="use-worker">Only Main thread</div>
+      </section>
+      <section>
+        <h1>Web Workers</h1>
+        <button type="button" id="button-web-workers-start">START</button>
+        <button type="button" id="button-web-workers-stop">STOP</button>
+      </section>
+      <section>
+        <h1>Nested Workers</h1>
+        <button type="button" id="button-nested-workers-start">START</button>
+        <button type="button" id="button-nested-workers-stop">STOP</button>
+      </section>
+    </main>
+    <script>
+      let workers = new Array(4).fill(null);
+
+      // for Nested Worker
+      let worker = null;
+
+      let runWebWorkers    = false;
+      let runNestedWorkers = false;
+
+      function drawVideoOnCanvasByWebWorkers(video, canvas, src, dest) {
+        const { width, height } = canvas;
+
+        src.drawImage(video, 0, 0, width, height);
+
+        if (runWebWorkers) {
+          workers.forEach((worker) => {
+            if (worker) {
+              worker.terminate();
+              worker = null;
+            }
+
+            worker = new Worker('./workers/web-worker.js');
+
+            worker.postMessage({
+              input : src.getImageData(0, 0, width, height),
+              output: dest.createImageData(width, height)
+            });;
+
+            worker.onmessage = (event) => {
+              dest.putImageData(event.data, 0, 0);
+            }
+          });
+        } else {
+          workers.forEach((worker) => {
+            if (worker) {
+              worker.terminate();
+              worker = null;
+            }
+          });
+        }
+
+        requestAnimationFrame(() => {
+          drawVideoOnCanvasByWebWorkers(video, canvas, src, dest);
+        });
+      }
+
+      function drawVideoOnCanvasByNestedWorker(video, canvas, src, dest) {
+        const { width, height } = canvas;
+
+        src.drawImage(video, 0, 0, width, height);
+
+        if (runNestedWorkers) {
+          worker = new Worker('./workers/nested-worker.js');
+
+          worker.postMessage({
+            input : src.getImageData(0, 0, width, height),
+            output: dest.createImageData(width, height)
+          });;
+
+          worker.onmessage = (event) => {
+            dest.putImageData(event.data, 0, 0);
+          }
+        } else {
+          if (worker) {
+            worker.terminate();
+            worker = null;
+          }
+        }
+
+        requestAnimationFrame(() => {
+          drawVideoOnCanvasByNestedWorker(video, canvas, src, dest);
+        });
+      }
+
+      fetch('https://weblike-curtaincall.ssl-lolipop.jp/portfolio-music-v/video/silentjealousy_mix.mp4')
+        .then((response) => response.blob())
+        .then((blob) => {
+          const video = document.querySelector('video');
+
+          video.src = window.URL.createObjectURL(blob);
+
+          const canvasSrc  = document.getElementById('canvas-src');
+          const canvasDest = document.getElementById('canvas-dest');
+
+          const contextSrc  = canvasSrc.getContext('2d');
+          const contextDest = canvasDest.getContext('2d');
+
+          canvasSrc.classList.add('-loaded');
+
+          canvasSrc.addEventListener('click', () => {
+            if (video.paused) {
+              video.play();
+              drawVideoOnCanvasByWebWorkers(video, canvasSrc, contextSrc, contextDest);
+              drawVideoOnCanvasByNestedWorker(video, canvasSrc, contextSrc, contextDest);
+            }
+          });
+
+          const buttonWebWorkersStart = document.getElementById('button-web-workers-start');
+          const buttonWebWorkersStop  = document.getElementById('button-web-workers-stop');
+
+          const buttonNestedWorkersStart = document.getElementById('button-nested-workers-start');
+          const buttonNestedWorkersStop  = document.getElementById('button-nested-workers-stop');
+
+          const useWorkerText = document.getElementById('use-worker');
+
+          buttonWebWorkersStart.addEventListener('click', () => {
+            runNestedWorkers = false;
+            runWebWorkers    = true;
+
+            useWorkerText.textContent = 'Web Workers';
+          }, false);
+
+          buttonWebWorkersStop.addEventListener('click', () => {
+            runWebWorkers = false;
+
+            useWorkerText.textContent = 'Only Main thread';
+          }, false);
+
+          buttonNestedWorkersStart.addEventListener('click', () => {
+            runWebWorkers    = false;
+            runNestedWorkers = true;
+
+            useWorkerText.textContent = 'Nested Workers';
+          }, false);
+
+          buttonNestedWorkersStop.addEventListener('click', () => {
+            runNestedWorkers = false;
+
+            useWorkerText.textContent = 'Only Main thread';
+          }, false);
+        });
+    </script>
+  </bodY>
+</html>
