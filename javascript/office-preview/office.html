@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>File Preview</title>
+    <style>
+    [type="file"] {
+      cursor: pointer;
+    }
+
+    iframe,
+    object {
+      margin: 24px auto;
+      border: none;
+      width: 90%;
+      height: 100vh;
+    }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div><input type="file" id="uploader" /></div>
+      <div id="preview"></div>
+    </main>
+    <script>
+      document.getElementById('uploader').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+
+        if (!file) {
+          console.error('There is not File !');
+        } else if (file.type.includes('office') || file.type.includes('ms')) {
+          const formData = new FormData();
+
+          formData.append('file', file)
+
+          const options = {
+            method : 'POST',
+            // headers: new Headers({ 'Content-Type': 'multipart/form-data' }),
+            body   : formData
+          };
+
+          fetch('https://weblike-curtaincall.ssl-lolipop.jp/prog/php/ajax-file-uploader.php', options)
+            .then((body) => {
+              return body.json();
+            })
+            .then((response) => {
+              const iframe = document.createElement('iframe');
+
+              iframe.setAttribute('src', `https://view.officeapps.live.com/op/embed.aspx?src=https://weblike-curtaincall.ssl-lolipop.jp/prog/php/test-files/${response.name}`);
+
+              document.getElementById('preview').innerHTML = '';
+              document.getElementById('preview').appendChild(iframe);
+            })
+            .catch(console.error);
+        } else {
+          // Otherwise
+          const object = document.createElement('object');
+
+          object.setAttribute('data', window.URL.createObjectURL(file));
+          object.setAttribute('type', file.type);
+
+          document.getElementById('preview').innerHTML = '';
+          document.getElementById('preview').appendChild(object);
+        }
+      }, false);
+    </script>
+  </body>
+</html>
